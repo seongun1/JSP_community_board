@@ -1,2 +1,2 @@
 # JSP_community_board
-<br> 1/11 강의 완료
+<br> 2024 /1/11 강의 완료
