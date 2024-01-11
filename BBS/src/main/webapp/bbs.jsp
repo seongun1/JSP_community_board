@@ -1,13 +1,25 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=euc-kr"
+    pageEncoding="euc-kr"%>
 <%@ page import ="java.io.PrintWriter" %>
+<%@ page import ="bbs.BbsDAO" %>
+<%@ page import ="bbs.Bbs" %>
+<%@ page import ="java.util.ArrayList" %>
 <!DOCTYPE html>
+
 <html>
 <head>
-<meta http-equiv ="Content-Type" content ="text/html"; charset ="UTF-8">
-<meta name = "viewport" content="width=device-width",initial-scale="1">
+<meta http-equiv ="Content-Type" content ="text/html" charset ="UTF-8">
+<meta name = "viewport" content="width=device-width ,initial-scale=1">
 <link rel="stylesheet" href="css/bootstrap.css">
-<title>JSP ê²Œì‹œíŒ ì›¹ ì‚¬ì´íŠ¸</title>
+<link rel="stylesheet" href="css/custom.css">
+<title>JSP °Ô½ÃÆÇ À¥ »çÀÌÆ®</title>
+<style type = "text/css">
+	a,a:hover{
+		color :#000000;
+		text-decoration:none;
+	}
+
+</style>
 </head>
 <body>
 	<%
@@ -15,6 +27,10 @@
 		if(session.getAttribute("userID") != null){
 			userID =(String) session.getAttribute("userID");
 			
+		}
+		int pageNumber = 1;
+		if (request.getParameter("pageNumber") != null){
+			pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
 		}
 	%>
 	<nav class="navbar navbar-default">
@@ -26,24 +42,24 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
-			<a class="navbar-brand" href="main,jsp">JSP ê²Œì‹œíŒ ì›¹ì‚¬ì´íŠ¸</a>
+			<a class="navbar-brand" href="main,jsp">JSP °Ô½ÃÆÇ À¥»çÀÌÆ®</a>
 		</div>
 		<div class="collapse navbar-collapse" id="bs-example-navbar=collapse-1">
 			<ul class="nav navbar-nav">
-				<li><a href="main.jsp">ë©”ì¸</a>
-				<li class ="active"><a href="bbs.jsp">ê²Œì‹œíŒ</a></li>
+				<li><a href="main.jsp">¸ÞÀÎ</a>
+				<li class ="active"><a href="bbs.jsp">°Ô½ÃÆÇ</a></li>
 			</ul>
 			<%
-				if(userID == null){ // ë¡œê·¸ì¸ì´ ë˜ì–´ìžˆì§€ ì•Šì€ ê²½ìš°
+				if(userID == null){ // ·Î±×ÀÎÀÌ µÇ¾îÀÖÁö ¾ÊÀº °æ¿ì
 			%>
 			<ul class="nav navbar-nav navbar-right">
 				<li class ="dropdown">
 					<a href="#" class="dropdown-toggle"
 						data-toggle="dropdown" role="button" aria-haspopup="true"
-						aria-exanded="false">ì ‘ì†í•˜ê¸° <span class="caret"></span></a>
+						aria-exanded="false">Á¢¼ÓÇÏ±â <span class="caret"></span></a>
 					<ul class="dropdown=menu">
-						<li><a href="login.jsp">ë¡œê·¸ì¸</a></li>
-						<li><a href="join.jsp">íšŒì›ê°€ìž…</a></li>
+						<li><a href="login.jsp">·Î±×ÀÎ</a></li>
+						<li><a href="join.jsp">È¸¿ø°¡ÀÔ</a></li>
 					</ul>
 				</li>
 			</ul>
@@ -55,9 +71,9 @@
 				<li class ="dropdown">
 					<a href="#" class="dropdown-toggle"
 						data-toggle="dropdown" role="button" aria-haspopup="true"
-						aria-exanded="false">íšŒì›ê´€ë¦¬<span class="caret"></span></a>
+						aria-exanded="false">È¸¿ø°ü¸®<span class="caret"></span></a>
 					<ul class="dropdown=menu">
-						<li><a href="logoutAction.jsp">ë¡œê·¸ì•„ì›ƒ</a></li>
+						<li><a href="logoutAction.jsp">·Î±×¾Æ¿ô</a></li>
 					</ul>
 				</li>
 			</ul>
@@ -72,22 +88,41 @@
 			solid #dddddd">
 			<thead>
 				<tr>
-					<th style "background-clolr:#eeeeee; text-align : center;">ë²ˆí˜¸</th>
-					<th style "background-clolr:#eeeeee; text-align : center;">ì œëª©</th>
-					<th style "background-clolr:#eeeeee; text-align : center;">ìž‘ì„±ìž</th>
-					<th style "background-clolr:#eeeeee; text-align : center;">ìž‘ì„±ì¼</th>
+					<th style= "background-color:#eeeeee; text-align : center;">¹øÈ£</th>
+					<th style= "background-color:#eeeeee; text-align : center;">Á¦¸ñ</th>
+					<th style= "background-color:#eeeeee; text-align : center;">ÀÛ¼ºÀÚ</th>
+					<th style= "background-color:#eeeeee; text-align : center;">ÀÛ¼ºÀÏ</th>
 				</tr>
 			</thead>
 			<tbody>
+			<%
+				BbsDAO bbsDAO = new BbsDAO();
+				ArrayList<Bbs> list = bbsDAO.getList(pageNumber);
+				for (int i=0;i<list.size();i++){	
+			%>
 				<tr>
-					<td>1</td>
-					<td>ì•ˆë…•í•˜ì„¸ìš”</td>
-					<td>í™ê¸¸ë™</td>
-					<td>2023-12-29</td>
+					<td><%=list.get(i).getBbsID() %></td>
+					<td><a href="view.jsp?bbsID=<%= list.get(i).getBbsID() %>"><%=list.get(i).getBbsTitle().replaceAll(" ","&nbsp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll("\n","<br>") %></a></td>
+					<td><%=list.get(i).getUserID() %></td>
+					<td><%=list.get(i).getBbsDate().substring(0,11)+list.get(i).getBbsDate().substring(11,13)+"½Ã"+list.get(i).getBbsDate().substring(14,16)+"ºÐ" %></td>
 				</tr>
+				<%
+					}
+				%>
 			</tbody>
 			</table>
-			<a href ="write.jsp" class ="btn btn-primary pull-right">ê¸€ì“°ê¸°</a>
+			<%
+				if (pageNumber !=1){
+			%>
+					<a href ="bbs.jsp?pageNumber=<%=pageNumber -1%>" class ="btn btn-success btn-arraw-Left">ÀÌÀü</a>
+			<% 	
+				}if(bbsDAO.nextPage(pageNumber+1)){
+			%>		
+				<a href ="bbs.jsp?pageNumber=<%=pageNumber +1%>" class ="btn btn-success btn-arraw-Left">´ÙÀ½</a>
+			<% 
+				}
+			%>
+			<a href ="write.jsp" class ="btn btn-primary pull-right">±Û¾²±â</a>
 		</div>
 	</div>
 	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
